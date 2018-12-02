@@ -8,6 +8,7 @@ import (
 	"path"
 	"strconv"
 	"strings"
+	"regexp"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/protoc-gen-go/descriptor"
@@ -60,8 +61,9 @@ func (g *generator) generateFile(file *descriptor.FileDescriptorProto) *plugin.C
 	g.P(`// import our twirp js library dependency`)
 	g.P(`var createClient = require("twirp");`)
 	g.P(`// import our protobuf definitions`)
-	g.P(`var pb = require(`, strconv.Quote("./"+baseFileName(file)+".js"), `);`)
-  g.P(`Object.assign(module.exports, pb);`)
+	match, _ := regexp.FindString("[^\/]+$", baseFileName(file))
+	g.P(`var pb = require(`, strconv.Quote("./"+ match +".js"), `);`)
+	g.P(`Object.assign(module.exports, pb);`)
 	g.P()
 	for _, service := range file.Service {
 		g.generateProtobufClient(file, service)
